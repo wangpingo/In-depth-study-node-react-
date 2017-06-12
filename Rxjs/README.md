@@ -94,28 +94,189 @@ from() 函数可能是Rxjs最常用的之一了。同步意思是啥就是执行
         })
     console.log('打印结束');
 ```
+## 多值，异步
+这个场景就是我们所说的事件驱动的异步编程，如何用Rxjs包装dom事件
+```
+    <span id="hello" href="...">hello</span>
+    const canbeclicked=document.querySelector('#hello')
+    const clickStream = Rx.Observable.fromEvent(canbeclicked,"click");
+    clickStream
+       .map(event => event.currentTarget.getAttribute('href'))
+       .subscribe(....)
+```
+
+## Observer
+我们知道Observer包装的数据既可以是同步也可以是异步，作为消费者来说的Observer来说，他还充当了回调的角色，这和使用推数据的形式相吻合，因为我们不知道DOM事件何时发生，AJAX事件何时返回。Observable使用Observe的next()函数来推送给Observe
+当我们调用Observable的subscribe()函数时，一个Observer就被创建出来，一个Observer就被创建出来并暴露三个函数
+```
+    let observer = {
+        next: function(){},
+        error: function(){},
+        complete: function(){}
+    }
+```
+subscribe 里面的箭头函数对应的是next() 函数
+## 下面我们介绍这三个函数
+
+## next(value):void
+   Observer 将收到的Observable发送的事件，这和观察者模式的update方法一样。如果我们传给subscribe的参数是一个函数而不是Observer对象的话，那么就对应next函数
+
+## complete():void
+Observer将收到Observable发送的完成消息。之后再调用的next函数将被忽略
+
+## error(exception):void
+Observer将收到Observable发送的错误消息。含义是异常后不再发送后续消息
+
+## Observable和Observer
+前文我们已经使用过Rxjs提供给我们的from()和of()函数创建Observable创建对象。然而Observable是如何和Observe交互的，以及如何取消订阅的，帮助我们了解Rxjs是如何运作的。
+这里我们实现一个observable函数，接受一些参数，返回一个对象，比如叫subscription对象。我们如何利用这个资源。
+```
+    const observable = dataSource => {
+        const INTERVAL = 1000;
+        let schedulerId;
+        return {
+            subscribe:observe =>{
+                schedulerId=setInteval(()=>{
+                    if(dataSource.length === 0){
+                        observe.complete();
+                        clearInterval(schedulerId)
+                        schedulerId = undefined
+                    }else{
+                        observer.next(dataSource.shift())
+                    }
+                    },INTERVAL);
+             return{
+                unsubscrible: ()=>{
+                    if(schedulerId){
+                        clearInterval(schedulerId);
+                    }
+                }
+             }       
+            }
+        }
+    }
+```
+
+来看看如何使用：
+```
+    let subscription = observerable([1,2,3]).subscribe({
+        next:console.log,
+        complete:()=>console.log('事件全部发送完毕')
+        })
+```
+
+## 自己在浏览器上面调试
+## Rxjs中提供了Observable的静态函数createl来实现和上面一样的功能
+```
+    const observable = Rx.Observerable.create(observe = >{
+        observe.next(1);
+        observe.next(2);
+        observe.next(3);
+        observable.complete();
+        })
+    const subscription = observable.subscrible(console.log)    
+```
+create() 函数接受一个函数作为参数，这个参数函数实际就是observable这个对象的subscrible函数。这就是我们自定义的observable，自定义他发送的行为，并且可以在整个系统中随时重用它。
+```
+    observable是惰性求职的
+```
+
+## 初识操作符
+   操作符可以所示Rxjs的重中之重。它就是之前说的pipeline中的函数。
+   操作符是纯的高阶的函数，永远不会改变observable对象，而是返回一个新的observable对象，为了链式调用
+   操作符也是惰性求值的。
+   操作符有两种类型，实例和静态的。前文中的from和of都是静态类型。
+   平时有几个操作符filter和map和reduce还有一个额外的操作符scan
+    scan比reduce更牛，因为scan可以返回每一步的聚合值
+    const addFunction= (a,b)=>a+b;
+    Rx.Observable.from([1,2,3,4,5,6,7,8,9])
+    .scan(addFunction,0)
+    .subscribe(console.log)
+take操作符  只需要三个事件
+first操作符 获取事件流的第一个事件 
+last操作符  获取事件流的最后一个事件
+
+## 时间相关的操作符
+   我们知道同步程序的运行时间是可预测的，而异步程序则很难预测
+    setTimeout干的活，在RxJS中由timer操作符来完成。
+    Rx.Observable.timer(1000).subscribe(() => /*一秒后将调用这里的代码*/);
+   setInterval干的话，由interval操作符来做，例子就不举了。
+skip操作符：跳过1个事件(为了方便从1开始计数)；
+interval操作符：每隔一秒发送一个事件，值从0开始；
+take操作符：因为interval产生无限事件序列，因此这里只取5个事件；
+do操作符：debug用；
+delay操作符：延迟2秒。或者理解为阻塞它之前的事件序列2秒钟；
+## Debouncing
+   debounceTime操作符的参数为900毫秒，它的含义是，如果在900毫秒内没有
+## Throttling
+   throttleTime操作符是debounceTime操作符的好姊妹。它所做的操作是，在一定时间范围内不管产生了多少事件，它只放第一个过去，剩下的都将舍弃。理解它最好的方式就是自己写个代码尝试一下，就当是个练习吧。
+##  Buffer  
+   buffer相关的操作符也都是和时间有关的操作，因此也放在这里来讲。首先是buffer操作符，它接收一个observable作为参数，这个observable作为buffer的中止条件，并把buffer的数据作为数组传播下去
+##  操作异步流
+   RxJS中的merge()操作符就是用来合并两个流的，既然是两个，就会有顺序问题，如果是同步操作，那就是有序的；如果是异步操作，merge()操作符内部会根据时间来做决定，合并起来的流中的事件就是无序的，交叉出现的。
+
+        Rx.Observable.merge(mouseupStream, touchendStream);
+        //或
+        mouseupStream.merge(touchendStream);
+假如我们最终的需求是要鼠标点击或手指触摸位置的数据，请看代码：
+
+    Rx.Observable.merge(mouseupStream, touchendStream)
+      .do(event => console.log(event.type))// debug，查看事件类型
+      .map(event => {
+        switch (event.type) {
+          case 'touchend':
+            return {
+              left: event.changedTouches[0].clientX,
+              top: event.changedTouches[0].clientY
+            };
+          case 'mouseup':
+            return {
+              left: event.clientX,
+              top: event.clientY
+            }
+        }
+      })
+      .subscribe(object => {
+        console.log(`位置坐标为：(${object.left}, ${object.top})`);
+      })
+
+我们知道Rx一脉相承自函数式编程，那这段代码就有点说不过去了，怎能出现命令式的控制语句呢，说的就是你switch！当然理想化的东西能不能实现还是一回事儿呢，况且规则是人定的。但我们尽量在操作符中不出现命令式语句，把不得不出现的逻辑推迟到observer端来处理。我在系列三中提到过副作用也都放到observer来处理。
+
+当然更好的方式是，我们在observable端就把数据处理好，observer接收时就不用再做处理了。
+        const pmouseupStream = mouseupStream.map(event => ({
+            left: event.clientX,
+            top: event.clientY
+        }));
 
 
+        const ptouchendStream = touchendStream.map(event => ({
+          left: event.changedTouches[0].clientX,
+          top: event.changedTouches[0].clientY
+        }));
 
+        Rx.Observable.merge(pmouseupStream, ptouchendStream)
+          .subscribe(object => {
+            console.log(`位置坐标为：(${object.left}, ${object.top})`);
+          });
 
+如果我们想要两个异步流合并后保持先后顺序呢？没问题，concat()操作符完美解决你的问题。
+switch()操作符只有实例方法实现方式。它的作用是切换到最新的那个observable
 
+mergeMap
 
+还用上面的例子，把map改成mergeMap，去掉switch，区别是，click事件流同样被取代，但第一次点击产生的时间事件流不会被第二次点击的时间事件流取代，而是合并成了一个流(无序)。
 
+switchMap
 
+这个操作符完成的事儿实际就是上面例子中的map+switch。
 
+concatMap
 
-
-
-
-
-
-
-
-
-
-
-
-
+用concatMap替换map，去掉switch，点击三次按钮，我们会看到控制台输出三次0到4，前一次不结束，后面的一直等待。这里给大家一个赞赏我的机会，请用三个鼠标事件流+concatMap操作符+takeUntil操作符完成拖放页面元素的功能。你会发现，哇~好简单好明了。
+```
+   takeUntil操作符接收一个observable为参数，含义是，接收上游事件并让它通过，直到参数observable开始发送事件。
+```
+ 其实更直观的感受这些操作符的强大之处，或者说Rx的强大之处，应该用ajax、promise这些更贴近日常开发的例子，譬如说之前提到过的搜索框提示，或者监控股票价格，气象温度等等，就留个各位自己尝试吧，实践出真知嘛。   
 
 
 
