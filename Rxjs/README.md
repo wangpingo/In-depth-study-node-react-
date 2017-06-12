@@ -45,14 +45,78 @@
    1. 函数式编程是一种开发软件的范式，强调用函数来创建应用程序，最大特点链式调用，声明式的，不可变的，没有副作用的叫做函数式编程的三大护法
    2. 迭代器模式 Rxjs的关键设计理念是遍历机制。用遍历机制通知生产者发送数据
    3. Rxjs 鼓励用数据驱动模式进行开发，把数据和处理数据分隔开来，这是Rxjs涉及的核心。用同样的方式处理不同的数据源
-## Observable
+##  Observable
    我们知道Observe是个容器，里面包含着数据，数据从何而来？
    ## 静态数据 ##
    我们日常重度使用的`string和array`都属于此范畴
    ## 动态数据 ##
    动态生成的数据
 
-   Observables 发送事件，Observer异步的接受事件
+   Observables 发送事件，Observer异步的接受事件，这让我们的应用在有大量时间产生的时候保持响应能力。强调一下，Rxjs不仅面向客户端也面向服务端
+
+   ```
+        Rx.observable.from(<数据源>)
+            .operator(...)
+            .operator(...)
+            .operator(...)
+            .subscrible(<处理最终结果数据>)
+   ```
+再次强调一下
+1. observables是个不可变的数据类型
+2. observables不仅仅代表了当前的数据，更代表了未来某个时刻的数据
+
+## 何时何地用Rxjs ##
+   时间没有万能药，也没有能解决一切的代码，Rxjs也一样，只能在适合他的时候使用
+   我们把一个程序按照两个维度划分成一个田字表格，横向是单值，多值，纵向是同步异步。
+## 单值，同步
+```
+    Rx.observable.of(2017)
+```
+一旦有消费者消费，此值马上被发送出去。这种情况下使用Rxjs显得有点重了，除非我们进行合并流的操作
+## 多值，同步
+```
+    Rx.observable.from([1,2,3])
+```
+from() 函数可能是Rxjs最常用的之一了。同步意思是啥就是执行1，在执行2，在执行3
+## 单值，异步
+这个情况就是Promise。Rxjs提供的函数无缝接轨到Promise
+```
+    const one = new Promise((resolve,reject)=>{
+        setTimeout(()=>{
+            resolve(1);
+            },3000)
+        }) //模拟3秒延迟
+    //这个时候promise已经在执行了
+    Rx.observable.fromPromise(one)
+    .map(value=>value+1)
+    .subscribe(result => {
+        console.log(result)
+        })
+    console.log('打印结束');
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
