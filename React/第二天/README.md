@@ -76,6 +76,89 @@ props和state都用于描述组件特性，但是两者有本质区别。前者�
 3. 新创建的对象由this所引用，并且最后隐士的返回this   
 
 ## fuck! 又引出两个问题js的继承方式,程序的设计模式。。。
+什么是设计模式？
+设计模式是一套代码的设计经验的总结，项目中合理的运用设计模式可以解决很多问题，
+设计模式之六大原则
+开闭原则
+1. 开闭原则(热插拔效果)
+2. 里氏代换原则(衍生类替换掉了基类)
+3. 依赖倒转原则(针对接口编程)
+4. 接口隔离原则(比如登陆和注册)
+5. 迪米特法则(最少知道原则)
+6. 单一职责原则(一个类只负责一个原则)
+
+总的来说为了实现高内聚低耦合
+1. 内聚是从功能角度来衡量模块内的联系，一个好的内聚模块应当恰好做一件事情。描述的是模块内功能功能的联系
+2. 耦合是软件结构中各模块之间相互连接的一种度量，耦合的强弱取决于模块间接口的复杂程度，进入或访问一个模块的点以及通过接口的数据
+
+## 常见的模式
+1. 工厂模式
+```
+    function CreatePerson(name,age,sex){
+        var obj = new Object();
+        obj.name = name;
+        obj.age = age;
+        obj.sex = sex;
+        obj.sayName = function() {
+            return this.name;
+        }
+        return obj;
+    }
+    var p1=new CreatePerson("拉拉","18","男")
+
+```
+工厂模式为了解决对个类似对象的声明问题，不能解决对象识别的问题
+2. 代理模式
+   ps一下： es6 貌似也有个proxy 让我们回忆一下，打开阮老师写的es6我们就会发现一段这样的代码：
+   ```
+        var obj = new Proxy({}, {
+                get: function(target,key,receiver){
+                    console.log(`getting ${key}`);
+                    return Reflect.get(target, key ,receiver);
+                },
+                set: function (target,key,value,receiver) {
+                    console.log(`setting ${key}!`);
+                    return Reflect.set(target,key,value,receiver);
+                }
+
+            })
+   ```
+
+在整个ES6标准中，只要有可能，任何语法和相关的函数都是基于14种内部方法构建的。
+大致我知道的有
+obj[get] obj[set] obj[hasproperty] obj[enermerate] obj[getPrototypeOf] 
+functionObj[call] 调用一个函数  constructObj调用一个构造函数
+#### 代理Proxy
+ES6 规范定义了一个全新的全局构造函数:代理(Proxy).他可以接受两个参数：目标对象(target)与句柄对象(handle)。请看一个简单实例:
+```
+    var target = {},handle = {};
+    
+    var proxy = new Proxy(target,handle);
+    
+```
+什么是Reflect
+1. Reflect对象与Proxy对象一样，也是 ES6 为了操作对象而提供的新 API。Reflect对象的设计目的有这样几个。
+2. 将Object对象的一些明显属于语言内部的方法（比如Object.defineProperty），放到Reflect对象上。
+3. 修改某些Object方法的返回结果，让其变得更合理。比如，Object.defineProperty(obj, name, desc)在无法定义属性时，会抛出一个错误，而Reflect.defineProperty(obj, name, desc)则会返回false。
+4. 让Object操作都变成函数行为。某些Object操作是命令式，比如name in obj和delete obj[name]，而Reflect.has(obj, name)和Reflect.deleteProperty(obj, name)让它们变成了函数行为。
+5. 让Object操作都变成函数行为。某些Object操作是命令式，比如name in obj和delete obj[name]，而Reflect.has(obj, name)和Reflect.deleteProperty(obj, name)让它们变成了函数行为。
+6. Reflect对象的方法与Proxy对象的方法一一对应，只要是Proxy对象的方法，就能在Reflect对象上找到对应的方法。这就让Proxy对象可以方便地调用对应的Reflect方法，完成默认行为，作为修改行为的基础。也就是说，不管Proxy怎么修改默认行为，你总可以在Reflect上获取默认行为。
+7. Reflect.get方法查找并返回target对象的name属性，如果没有该属性，则返回undefined。
+8. Reflect.set方法设置target对象的name属性等于value。如果name属性设置了赋值函数，则赋值函数的this绑定receiver。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>promise</title>
+</head>
+<body>
+    <script src="promise.js"></script>
+    <script>
+        let promise=new Promise(function (complete,reject) {
+          setTimeout(function () {
+            alert('My name is Promise');
+            complete('haha');
+          },2000)
+
+        })
+
+        promise.then(
+          function (value) {
+            alert(value)
+          }
+        )
+    </script>
+</body>
+</html>

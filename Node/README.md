@@ -31,4 +31,3 @@ child_process.execSync(): child_process.exec() 的一个同步版本，它会阻
 child_process.execFileSync(): child_process.execFile() 的一个同步版本，它会阻塞 Node.js 的事件循环。
 对于某些用例，如自动化的 shell 脚本，同步的版本可能更方便。 大多数情况下，同步的方法会显著地影响性能，因为它拖延了事件循环直到衍生进程完成。
 
-R
