@@ -63,4 +63,86 @@ word-break:break-all 就可以实现超出就换行，这样有引出来其他�
 今天前面不会的东西太多，明天我们讲 vertical-align 睡了哈，good night!!
 
 
+###  今天仔细回顾一下如何利用vertical-align:middle实现多行文字垂直居中
+
+> 仔细回顾一下 ==vertical-align:middle== 这个属性  
+#### w3c中这样介绍
+- vertical-align 属性设置元素的垂直对齐方式。
+- 该属性定义行内元素的基线相对于该元素所在行的基线的垂直对齐。允许指定负长度值和百分比值。这会使元素降低而不是升高。在表单元格中，这个属性会设置单元格框中的单元格内容的对齐方式
+
+经过我的测验，vertical-align：middle；喜欢配合行内元素使用，尤其是inline-block
+
+```
+        .main{
+            width: 605px;
+            height: 200px;
+            background-color: black;
+            color: white;
+            display: inline-block;
+        }
+        .sub2{
+            display: inline-block;
+            vertical-align: middle;
+            width: 500px;
+        }
+        .first{
+            display: inline-block;
+            width: 60px;
+            height: 200px;
+            vertical-align: middle;
+        }
+
+
+       <div class="main">
+        <span class="first">
+           
+        </span>
+        <span class="sub2">
+            人力资源-ehr组人力资源-ehr组人力资源-ehr组人力资源-ehr组人力资源-ehr组人力资源-ehr组人力资源-ehr组人力资源-ehr组人力资源-ehr组人力资源-ehr组人力资源-ehr组人力资源-ehr组人力资源-ehr组人力资源-ehr组人力资源-ehr组人力资源-ehr组
+        </span>
+    </div>
+    
+```
+
+![image](http://note.youdao.com/yws/public/resource/5151f032fba248f194a1c38bd16f1176/xmlnote/WEBRESOURCE19a635157d9d33636026487b1df2a815/15)
+
+## 如果去掉class为first的span
+
+```
+        <div class="main">
+     <!--    <span class="first">
+           
+        </span> -->
+        <span class="sub2">
+            人力资源-ehr组人力资源-ehr组人力资源-ehr组人力资源-ehr组人力资源-ehr组人力资源-ehr组人力资源-ehr组人力资源-ehr组人力资源-ehr组人力资源-ehr组人力资源-ehr组人力资源-ehr组人力资源-ehr组人力资源-ehr组人力资源-ehr组人力资源-ehr组
+        </span>
+    </div>
+```
+那么结果就为
+
+
+![image](http://note.youdao.com/yws/public/resource/5151f032fba248f194a1c38bd16f1176/xmlnote/WEBRESOURCEd167da8ec418371dd0a6900d2de68c5c/17)
+我的理解是:
+使用vertical-align:middle实现文字居中的时候，必须使用相邻的行级元素（例如first）将middle这个位置确立下来，之后的元素才能使用vertical-align:middle让文字居中。
+
+可以解决问题：
+   图片和文字共同要求居中的时候可以使用vertical-align:middle
+   
+ps: 让多行文字居中没闭眼使用vertical-align:middle;有其他更好的解决办法
+-  display:table的方法
+        
+    ```
+    .middle-box{display: table; height: 300px;}
+    .middle-inner{display: table-cell; vertical-align:middle; text-align:center;}
+    
+    <div class="middle-box">
+	<div class="middle-inner">
+		你好你好你好你好你好你好你好你好
+	</div>
+    </div>
+   
+   ```
+   ![image](//note.youdao.com/yws/res/22/WEBRESOURCE61e45248a7c8ef69776068688a27a5bc)
+
+
 
